@@ -8,27 +8,29 @@ class CameraStream:
         self.cap = None
 
     def start_stream(self):
+        """Start the camera stream and display live video."""
         try:
             self.cap = cv2.VideoCapture(self.cam_index)
             if not self.cap.isOpened():
-                raise RuntimeError(f"Kamera {self.cam_index} konnte nicht geöffnet werden.")
+                raise RuntimeError(f"Camera {self.cam_index} could not be opened.")
+            
             self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, self.width)
             self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self.height)
 
-            print("Stream gestartet. Drücke 'q' zum Beenden.")
+            print("Stream started. Press 'q' to quit.")
             while True:
                 ret, frame = self.cap.read()
                 if not ret:
-                    print("Kein Frame erhalten, beende Stream.")
+                    print("No frame received. Exiting stream.")
                     break
 
-                cv2.imshow("Kamera Stream", frame)
+                cv2.imshow("Camera Stream", frame)
                 if cv2.waitKey(1) & 0xFF == ord('q'):
-                    print("Stream beendet vom Nutzer.")
+                    print("Stream stopped by user.")
                     break
 
         except Exception as e:
-            print(f"Fehler im Stream: {e}")
+            print(f"Stream error: {e}")
 
         finally:
             if self.cap is not None:

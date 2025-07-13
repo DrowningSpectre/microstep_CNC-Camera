@@ -9,28 +9,30 @@ class CNCController:
         self.ser = None
 
     def connect(self):
+        """Establish serial connection to the CNC device."""
         try:
             self.ser = serial.Serial(self.port, self.baudrate, timeout=self.timeout)
-            time.sleep(2)  # Warte auf Initialisierung
+            time.sleep(2)  # Wait for initialization
             if self.ser.is_open:
-                print(f"CNC verbunden auf {self.port}")
+                print(f"CNC connected on {self.port}")
         except serial.SerialException as e:
-            print(f"Fehler beim Verbinden mit CNC: {e}")
+            print(f"Error while connecting to CNC: {e}")
             self.ser = None
 
     def send_command(self, cmd):
+        """Send a G-code or M-code command to the CNC and optionally read the response."""
         if self.ser and self.ser.is_open:
             self.ser.write((cmd + '\n').encode('utf-8'))
-            print(f"Befehl gesendet: {cmd}")
-            # Optional Antwort lesen
+            print(f"Command sent: {cmd}")
             response = self.ser.readline().decode('utf-8').strip()
-            print(f"Antwort: {response}")
+            print(f"Response: {response}")
             return response
         else:
-            print("Serielle Verbindung nicht geöffnet.")
+            print("Serial connection not open.")
             return None
 
     def disconnect(self):
+        """Close the serial connection to the CNC device."""
         if self.ser and self.ser.is_open:
             self.ser.close()
-            print("CNC Verbindung geschlossen.")
+            print("CNC connection closed.")

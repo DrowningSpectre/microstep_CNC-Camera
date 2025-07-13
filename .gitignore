@@ -3,37 +3,37 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# Virtuelle Umgebung
+# Virtuelle Enviorment
 venv/
 env/
 ENV/
 .venv/
 
-# Jupyter Notebook Checkpoints (falls du welche benutzt)
+# Jupyter Notebook Checkpoints
 .ipynb_checkpoints/
 
-# Log- und Temporäre Dateien
+# Log- and Temp Data
 *.log
 *.tmp
 *.temp
 
-# VSCode Einstellungen (optional)
+# VSCode Settings (optional)
 .vscode/
 
-# PyCharm Einstellungen (optional)
+# PyCharm Settings (optional)
 .idea/
 
-# Dateien für Build/Distribution
+# Data for Build/Distribution
 build/
 dist/
 *.egg-info/
 
-# Daten- und Bilddateien (je nach Projekt eventuell ausnehmen)
+# Data and Picture-Data 
 *.tif
 *.tiff
 *.png
 *.jpg
 *.jpeg
 
-# MacOS versteckte Dateien (optional)
+# MacOS hidden data (optional)
 .DS_Store

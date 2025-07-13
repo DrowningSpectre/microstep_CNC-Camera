@@ -1,0 +1,3 @@
+pyserial
+opencv-python
+wmi; platform_system=="Windows"

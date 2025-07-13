@@ -30,7 +30,7 @@ class InitialCommunication:
         ports = serial.tools.list_ports.comports()
         result = []
         for p in ports:
-            vid_pid = f"{p.vid:04X}:{p.pid:04X}" if p.vid and p.pid else "Unbekannt"
+            vid_pid = f"{p.vid:04X}:{p.pid:04X}" if p.vid and p.pid else "Unknown"
             result.append((p.device, p.description, vid_pid))
         return result
 
@@ -46,14 +46,14 @@ class InitialCommunication:
             return False
         return False
 
-    # --- Kameras FFmpeg ---
+    # --- Cameras via FFmpeg ---
 
     def get_camera_names_windows(self):
         if platform.system() != "Windows":
             return {}
 
         if not os.path.isfile(self.ffmpeg_exe):
-            print(f"FFmpeg nicht gefunden unter: {self.ffmpeg_exe}")
+            print(f"FFmpeg not found at: {self.ffmpeg_exe}")
             return {}
 
         try:
@@ -68,10 +68,10 @@ class InitialCommunication:
             matches = re.findall(pattern, output)
             return {i: name for i, name in enumerate(matches)}
         except Exception as e:
-            print(f"Fehler beim Abrufen der Kameranamen: {e}")
+            print(f"Error retrieving camera names: {e}")
             return {}
 
-    # --- Kameras WMI (Windows) ---
+    # --- Cameras via WMI (Windows) ---
 
     def get_cameras_wmi(self):
         if platform.system() != "Windows" or wmi is None:
@@ -87,7 +87,7 @@ class InitialCommunication:
                 })
         return cams
 
-    # --- Kameras OpenCV + WMI Namen kombinieren ---
+    # --- Combine OpenCV and WMI camera names ---
 
     def find_cameras_with_wmi_names(self):
         wmi_cams = self.get_cameras_wmi()
@@ -102,70 +102,67 @@ class InitialCommunication:
                     if i < len(wmi_names):
                         name = wmi_names[i]
                     else:
-                        name = f"{i} (ID unbekannt): Unbekanntes Gerät {i}"
+                        name = f"{i} (ID unknown): Unknown device {i}"
                     available_cams.append((i, name))
                 cap.release()
         return available_cams
 
-    # --- User Auswahl ---
+    # --- User selection ---
 
     def user_select(self, options, prompt, allow_none=False):
         if allow_none:
-            options = ['Keines'] + options
+            options = ['None'] + options
 
         if not options:
-            print("Keine Optionen gefunden.")
+            print("No options found.")
             return None
 
         print(prompt)
         for idx, option in enumerate(options):
             print(f"{idx}: {option}")
         while True:
-            selection = input(f"Wähle eine Zahl (0-{len(options)-1}): ")
+            selection = input(f"Select a number (0-{len(options)-1}): ")
             if selection.isdigit():
                 selection = int(selection)
                 if 0 <= selection < len(options):
                     if allow_none and selection == 0:
                         return None
                     return options[selection]
-            print("Ungültige Eingabe, versuche es erneut.")
+            print("Invalid input, please try again.")
 
-    # --- Hauptfunktion ---
+    # --- Main device selection ---
 
     def select_devices(self):
-        # CNC Ports anzeigen
+        # Show available serial ports
         serial_ports_info = self.get_serial_port_info()
         serial_port_options = [f"{port} - {desc} (VID:PID={vidpid})" for port, desc, vidpid in serial_ports_info]
 
         selected_cnc = None
         if serial_port_options:
-            selected_port = self.user_select(serial_port_options, "Verfügbare serielle Ports:", allow_none=True)
+            selected_port = self.user_select(serial_port_options, "Available serial ports:", allow_none=True)
             if selected_port:
                 port = selected_port.split()[0]
-                print(f"Prüfe, ob Port {port} eine CNC ist...")
+                print(f"Checking if port {port} is a CNC device...")
                 if self.is_cnc_port(port):
-                    print(f"Port {port} ist eine CNC.")
+                    print(f"Port {port} is a CNC device.")
                     selected_cnc = port
                 else:
-                    print(f"Port {port} ist keine CNC oder antwortet nicht.")
+                    print(f"Port {port} is not a CNC device or not responding.")
             else:
-                print("Keine CNC ausgewählt.")
+                print("No CNC device selected.")
         else:
-            print("Keine seriellen Ports gefunden.")
+            print("No serial ports found.")
 
-        # Kamera Auswahl mit WMI Namen
+        # Camera selection with WMI names
         camera_options = self.find_cameras_with_wmi_names()
         camera_option_strings = [f"{idx}: {name}" for idx, name in camera_options]
 
         selected_cam_index = None
         if camera_option_strings:
-            user_choice = self.user_select(camera_option_strings, "Verfügbare Kameras:", allow_none=True)
+            user_choice = self.user_select(camera_option_strings, "Available cameras:", allow_none=True)
             if user_choice:
                 selected_cam_index = int(user_choice.split(":")[0])
         else:
-            print("Keine Kameras gefunden.")
+            print("No cameras found.")
 
         return selected_cnc, selected_cam_index
-
-
-
