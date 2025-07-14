@@ -6,23 +6,34 @@ import re
 import platform
 import os
 
-
-FFMPEG_PATH = r"C:\\Users\\Chris\\Documents\\Projekt\\Libs\\ffmpeg_build\\bin\\ffmpeg.exe"
-
-
 class InitialCommunication:
-    def __init__(self, cnc_cmds=None, cnc_baudrate=115200, cnc_timeout=0.1, max_cam_index=3, ffmpeg_path=FFMPEG_PATH):
+    def __init__(self,
+                 cnc_cmds=None,
+                 cnc_baudrate=115200,
+                 cnc_timeout=3,
+                 max_cam_index=3,
+                 ffmpeg_path=r"C:\\Users\\Chris\\Documents\\Projekt\\Libs\\ffmpeg_build\\bin\\ffmpeg.exe",
+                 debug=False):
         self.cnc_cmds = cnc_cmds or ['M115']
         self.cnc_baudrate = cnc_baudrate
         self.cnc_timeout = cnc_timeout
         self.max_cam_index = max_cam_index
         self.ffmpeg_exe = ffmpeg_path
+        self.debug = debug
 
-    # -----------------------------------------------
-    # CNC
-    # -----------------------------------------------
-    def find_serial_ports(self):
-        return [port.device for port in serial.tools.list_ports.comports()]
+    def log(self, msg):
+        if self.debug:
+            print(msg)
+
+    # --- CNC ---
+
+    def get_serial_port_info(self):
+        ports = serial.tools.list_ports.comports()
+        result = []
+        for p in ports:
+            vid_pid = f"{p.vid:04X}:{p.pid:04X}" if p.vid and p.pid else "Unknown"
+            result.append((p.device, p.description, vid_pid))
+        return result
 
     def is_cnc_port(self, port):
         try:
@@ -32,19 +43,18 @@ class InitialCommunication:
                     response = ser.readline().decode('utf-8').strip().lower()
                     if response and "ok" in response:
                         return True
-        except Exception:
-            return False
+        except Exception as e:
+            self.log(f"CNC detection error on {port}: {e}")
         return False
 
-    # -----------------------------------------------
-    # Camera detection with names (Windows / FFmpeg only)
-    # -----------------------------------------------
+    # --- Cameras via OpenCV + FFmpeg ---
+
     def get_camera_names_windows(self):
         if platform.system() != "Windows":
             return {}
 
         if not os.path.isfile(self.ffmpeg_exe):
-            print(f"FFmpeg not found at: {self.ffmpeg_exe}")
+            self.log(f"FFmpeg not found at: {self.ffmpeg_exe}")
             return {}
 
         try:
@@ -59,77 +69,18 @@ class InitialCommunication:
             matches = re.findall(pattern, output)
             return {i: name for i, name in enumerate(matches)}
         except Exception as e:
-            print(f"Error while listing devices: {e}")
+            self.log(f"Camera listing error: {e}")
             return {}
 
     def find_cameras(self):
-        available_cams = []
         camera_names = self.get_camera_names_windows()
-
+        available_cams = []
         for i in range(self.max_cam_index):
             cap = cv2.VideoCapture(i)
             if cap.isOpened():
                 ret, _ = cap.read()
                 if ret:
-                    name = camera_names.get(i, f"Unknown device {i}")
+                    name = camera_names.get(i, f"Camera {i}")
                     available_cams.append((i, name))
                 cap.release()
         return available_cams
-
-    # -----------------------------------------------
-    # Selection interface
-    # -----------------------------------------------
-    def user_select(self, options, prompt, allow_none=False):
-        if allow_none:
-            options = ['NONE'] + options
-
-        if not options:
-            print("No options found.")
-            return None
-
-        print(prompt)
-        for idx, option in enumerate(options):
-            print(f"{idx}: {option}")
-        while True:
-            selection = input(f"Select a number (0-{len(options) - 1}): ")
-            if selection.isdigit():
-                selection = int(selection)
-                if 0 <= selection < len(options):
-                    if allow_none and selection == 0:
-                        return None
-                    return options[selection]
-            print("Invalid input. Please try again.")
-
-    # -----------------------------------------------
-    # Main entry: device scan and selection
-    # -----------------------------------------------
-    def select_devices(self):
-        # CNC port selection
-        serial_ports = self.find_serial_ports()
-        selected_cnc = None
-        if serial_ports:
-            selected_port = self.user_select(serial_ports, "Available serial ports:", allow_none=True)
-            if selected_port:
-                print(f"Checking if port {selected_port} is a CNC device...")
-                if self.is_cnc_port(selected_port):
-                    print(f"Port {selected_port} is a CNC device.")
-                    selected_cnc = selected_port
-                else:
-                    print(f"Port {selected_port} is not a CNC device or not responding.")
-            else:
-                print("No CNC device selected.")
-        else:
-            print("No serial ports available.")
-
-        # Camera selection
-        camera_options = self.find_cameras()
-        selected_cam_index = None
-        if camera_options:
-            display_options = [f"{i}: {name}" for i, name in camera_options]
-            user_choice = self.user_select(display_options, "Available cameras:")
-            if user_choice:
-                selected_cam_index = int(user_choice.split(":")[0])
-        else:
-            print("No cameras found.")
-
-        return selected_cnc, selected_cam_index

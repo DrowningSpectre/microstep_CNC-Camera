@@ -1,35 +1,55 @@
-# Initial Communication Module
+# Microstep Control
 
-**This project is currently in draft/early development stage.**
+**Status:** Draft · Early Development
 
-This Python module is part of an early-stage project aiming to develop a **microscope camera system integrated with CNC control**.  
-The goal is to enable synchronized image capture and precise CNC hardware manipulation for advanced prototyping, analysis, and automation tasks.
+**Microstep Control** is an experimental Python-based microscope camera and CNC control interface. It combines image streaming, serial CNC communication, and precise positioning into a unified GUI application. The goal is to build a flexible foundation for advanced analysis, prototyping, and automation workflows.
 
-Currently, the stable version does not utilize WMI for camera detection (Windows only), but this is planned.  
-Future development will add support for both Windows and Linux platforms and include a graphical user interface (GUI).  
-Further enhancements will include image analysis and AI-assisted functionalities to enhance system capabilities.
+---
 
-## Features
+## 🔧 Project Goals
 
-- Detects available serial ports and identifies CNC devices by sending configurable commands.
-- Lists connected cameras with friendly names using FFmpeg and Windows WMI (planned).
-- Provides a user-friendly console interface to select CNC serial port and camera.
-- Supports integration with OpenCV for camera streaming.
-- Planned: cross-platform support (Windows and Linux).
-- Planned: GUI for easier device selection and control.
+- Integrate a microscope camera with a CNC motion system
+- Provide a real-time image preview using OpenCV
+- Enable axis movement via GUI buttons (X/Y/Z with step size)
+- Display CNC responses live without interruptive dialogs
+- Prepare for AI-based image processing and control
+- Cross-platform compatibility (Windows now, Linux planned)
+- Future-proof modular design with serial abstraction and pluggable components
 
-## Requirements
+---
 
-- Python 3.7+
+## 🖼️ Features (Current Stage)
+
+- Detect connected serial ports and identify CNC boards
+- Discover video capture devices using FFmpeg (Windows only for now)
+- Connect and stream from selected camera using OpenCV
+- Send CNC commands over serial (e.g., G28, G1, G91/G90)
+- Live response feedback via console-style text box
+- Step-based control for X/Y/Z axis via GUI buttons
+- Adjustable step size in mm
+- Modular backend design: `initial_communication_base.py`, `cnc_control.py`, `stream.py`
+
+---
+
+## 📦 Requirements
+
+- Python 3.8+
+- `PySide6`
 - `pyserial`
 - `opencv-python`
-- `wmi` (Windows only, planned)
-- FFmpeg binary accessible (configured via path in code)
+- `ffmpeg` (binary must be present and configured in code path)
 
-## Installation
+**Optional (planned):**
 
-1. Clone the repository or copy the files.
-2. Install dependencies:
+- `wmi` (Windows-only, camera info via WMI)
+- `numpy`, `pillow`, `tensorflow` (for AI and image analysis, future)
+
+---
+
+## 📥 Installation
+
+1. Clone this repository:
 
 ```bash
-pip install -r requirements.txt
+git clone https://github.com/yourusername/microstep_v.0.001.git
+cd microstep_v.0.001

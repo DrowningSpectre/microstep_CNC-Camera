@@ -1,3 +1,4 @@
 pyserial
 opencv-python
+pyside6
 wmi; platform_system=="Windows"
