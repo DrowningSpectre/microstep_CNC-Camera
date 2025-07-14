@@ -14,7 +14,7 @@ class InitialCommunication:
                  max_cam_index=3,
                  ffmpeg_path=r"C:\\Users\\Chris\\Documents\\Projekt\\Libs\\ffmpeg_build\\bin\\ffmpeg.exe",
                  debug=False):
-        self.cnc_cmds = cnc_cmds or ['M115']
+        self.cnc_cmds = cnc_cmds or ['G28']
         self.cnc_baudrate = cnc_baudrate
         self.cnc_timeout = cnc_timeout
         self.max_cam_index = max_cam_index
