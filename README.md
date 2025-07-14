@@ -53,3 +53,16 @@
 ```bash
 git clone https://github.com/yourusername/microstep_v.0.001.git
 cd microstep_v.0.001
+
+
+
+## ⚠ Disclaimer / Warning
+
+This project involves controlling CNC hardware and interacting with camera devices.
+Improper use or configuration of this software can cause unintended hardware movement or damage.
+
+**Use at your own risk.**  
+The authors and contributors are not liable for any damages or injuries that may result from the use of this software.  
+This project is provided _as-is_ without warranty of any kind.
+
+Always test your setup carefully and ensure safety mechanisms are in place before operating real hardware.
