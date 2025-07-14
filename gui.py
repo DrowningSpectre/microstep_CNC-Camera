@@ -1,16 +1,21 @@
 from PySide6.QtWidgets import (
-    QApplication, QWidget, QVBoxLayout, QPushButton, QLabel, QHBoxLayout,
-    QMessageBox, QComboBox, QGroupBox, QFormLayout, QLineEdit, QTextEdit
+    QWidget, QVBoxLayout, QPushButton, QLabel, QHBoxLayout,
+    QComboBox, QGroupBox, QFormLayout, QLineEdit, QTextEdit,
+    
+    # QApplication,QMessageBox 
+
 )
 from PySide6.QtCore import QTimer, QThread, Signal
 from PySide6.QtGui import QImage, QPixmap
 
-import sys
+# import sys
+# import time
+
 import cv2
-import time
+
+#from archive.stream import CameraStream
 
 from initialial_communication_base import InitialCommunication
-from stream import CameraStream
 from cnc_control import CNCController
 
 
@@ -85,7 +90,7 @@ class MicroscopeGUI(QWidget):
         self.connect_button = QPushButton("Connect Devices")
         self.connect_button.clicked.connect(self.handle_device_selection)
 
-        self.cnc_button = QPushButton("Send G28")
+        self.cnc_button = QPushButton("Home")
         self.cnc_button.clicked.connect(self.send_cnc_command)
         self.cnc_button.setEnabled(False)
 
