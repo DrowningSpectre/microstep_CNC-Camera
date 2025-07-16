@@ -1,10 +1,10 @@
 import sys
 from PySide6.QtWidgets import QApplication
-from gui import MicroscopeGUI
+from gui import MainWindow
 
 def main():
     app = QApplication(sys.argv)
-    window = MicroscopeGUI()
+    window = MainWindow()
     window.show()
     sys.exit(app.exec())
 
